@@ -1,0 +1,22 @@
+<div class="job-shell">
+  <header class="top-nav">
+    <nav>
+      <a routerLink="/employer/dashboard" routerLinkActive="active-link">Dashboard</a>
+      <a routerLink="/employer/postings" routerLinkActive="active-link">Postings</a>
+      <a routerLink="/employer/applicants" routerLinkActive="active-link">Applicants</a>
+      <a routerLink="/employer/notifications" routerLinkActive="active-link">Notifications</a>
+    </nav>
+    <div class="profile-menu-wrap">
+      <button class="profile-badge" (click)="showMenu = !showMenu">{{ usernameInitial }}</button>
+      <div class="profile-menu" *ngIf="showMenu">
+        <a routerLink="/employer/company-profile" (click)="showMenu = false">Company Profile</a>
+        <a routerLink="/employer/change-password" (click)="showMenu = false">Change Password</a>
+        <button type="button" (click)="logout()">Log Out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="job-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

@@ -1,0 +1,38 @@
+<section class="panel">
+  <div class="dashboard-hero">
+    <p class="badge">Job Seeker Dashboard</p>
+    <h1>Welcome, {{ username }}</h1>
+    <p>Find jobs that match your profile and apply in one click.</p>
+  </div>
+
+  <h2>Search Jobs</h2>
+  <form class="search-grid" [formGroup]="form" (ngSubmit)="search()">
+    <input formControlName="role" placeholder="Job role" />
+    <input formControlName="location" placeholder="Location" />
+    <input formControlName="maxExperienceYears" placeholder="Max experience years" />
+    <input formControlName="company" placeholder="Company" />
+    <input formControlName="minSalary" placeholder="Min salary" />
+    <input formControlName="maxSalary" placeholder="Max salary" />
+    <select formControlName="jobType">
+      <option value="Any job type">Any job type</option>
+      <option value="Full-time">Full-time</option>
+      <option value="Contract">Contract</option>
+      <option value="Internship">Internship</option>
+    </select>
+    <button type="submit" class="action-btn">Search</button>
+  </form>
+
+  <div class="job-list">
+    <p *ngIf="message" class="feedback">{{ message }}</p>
+    <div class="job-card" *ngFor="let job of filteredJobs">
+      <div>
+        <h3>{{ job.title }}</h3>
+        <p>{{ job.company }} | {{ job.location }} | {{ job.type }} | {{ job.minSalary }} - {{ job.maxSalary }}</p>
+      </div>
+      <button type="button" class="outline-btn" (click)="toggleFavorite(job)">
+        {{ isFavorite(job.id) ? 'Remove Favorite' : 'Save Favorite' }}
+      </button>
+    </div>
+    <p *ngIf="!filteredJobs.length" class="empty">No jobs found.</p>
+  </div>
+</section>
