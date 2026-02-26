@@ -1,0 +1,35 @@
+<section class="panel form-panel">
+  <h1>Complete Profile</h1>
+
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <label>Username</label>
+    <input formControlName="username" />
+
+    <label>Full Name</label>
+    <input formControlName="fullName" />
+
+    <label>Email</label>
+    <input formControlName="email" />
+
+    <label>Mobile Number</label>
+    <input formControlName="mobileNumber" />
+
+    <label>Location</label>
+    <input formControlName="location" />
+
+    <label>Skills (comma separated)</label>
+    <input formControlName="skills" />
+
+    <label>Education (comma separated)</label>
+    <input formControlName="education" />
+
+    <label>Certifications (comma separated)</label>
+    <input formControlName="certifications" />
+
+    <label>Summary</label>
+    <textarea formControlName="summary"></textarea>
+
+    <button type="submit" class="action-btn">Save Profile</button>
+  </form>
+  <p class="feedback">{{ message }}</p>
+</section>
