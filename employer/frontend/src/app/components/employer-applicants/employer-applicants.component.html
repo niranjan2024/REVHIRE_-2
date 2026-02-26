@@ -1,0 +1,24 @@
+<section class="panel">
+  <h1>Applicants</h1>
+
+  <form class="search-grid" [formGroup]="form" (ngSubmit)="filter()">
+    <select formControlName="status">
+      <option value="">All statuses</option>
+      <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+    </select>
+    <input formControlName="search" placeholder="Search by skill or name" />
+    <button type="submit" class="action-btn">Filter</button>
+  </form>
+
+  <p class="feedback" *ngIf="message">{{ message }}</p>
+
+  <div class="job-list">
+    <div class="job-card" *ngFor="let applicant of applicants">
+      <div>
+        <h3>{{ applicant.applicantFullName || applicant.applicantUsername }} ({{ applicant.status }})</h3>
+        <p>{{ applicant.jobTitle }} | {{ applicant.applicantSkills || 'No skills added' }}</p>
+      </div>
+    </div>
+    <p class="empty" *ngIf="!message && !applicants.length">No applicants found.</p>
+  </div>
+</section>
