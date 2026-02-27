@@ -15,7 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
+import com.revhire.exception.ApiException;
 
 import java.util.Optional;
 
@@ -78,9 +78,9 @@ class JobSeekerProfileServiceTest {
         user.setRole(Role.EMPLOYER);
         when(userRepository.findByUsernameIgnoreCase("employer")).thenReturn(Optional.of(user));
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+        ApiException ex = assertThrows(ApiException.class,
                 () -> profileService.getProfile("employer"));
 
-        assertEquals(HttpStatus.FORBIDDEN, ex.getStatusCode());
+        assertEquals(HttpStatus.FORBIDDEN, ex.getStatus());
     }
 }

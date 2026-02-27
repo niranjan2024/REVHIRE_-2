@@ -76,16 +76,16 @@ public class ResumeService {
     public ResumeUploadResponse uploadFormattedResume(String username, MultipartFile file) {
         User user = getAuthenticatedJobSeeker(username);
         if (file == null || file.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Resume file is required");
+            throw new com.revhire.exception.BadRequestException( "Resume file is required");
         }
         if (file.getSize() > MAX_FILE_SIZE) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File size must be up to 2MB");
+            throw new com.revhire.exception.BadRequestException( "File size must be up to 2MB");
         }
 
         String originalName = file.getOriginalFilename() == null ? "" : file.getOriginalFilename().trim();
         String contentType = file.getContentType() == null ? "" : file.getContentType().trim();
         if (!isAllowedFile(originalName, contentType)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Allowed formats: pdf, docx");
+            throw new com.revhire.exception.BadRequestException( "Allowed formats: pdf, docx");
         }
 
         Resume resume = resumeRepository.findByUserId(user.getId()).orElseGet(() -> {
@@ -97,7 +97,7 @@ public class ResumeService {
         try {
             fileData = file.getBytes();
         } catch (java.io.IOException ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to process resume file");
+            throw new com.revhire.exception.BadRequestException( "Unable to process resume file");
         }
         resume.setUploadedFileName(originalName);
         resume.setUploadedFileType(contentType);
@@ -124,9 +124,9 @@ public class ResumeService {
 
     private User getAuthenticatedJobSeeker(String username) {
         User user = userRepository.findByUsernameIgnoreCase(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new com.revhire.exception.NotFoundException( "User not found"));
         if (user.getRole() != Role.JOB_SEEKER) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only job seekers can access this module");
+            throw new com.revhire.exception.ForbiddenException( "Only job seekers can access this module");
         }
         return user;
     }
@@ -170,7 +170,7 @@ public class ResumeService {
     private void validateTextResume(ResumeRequest request) {
         String objective = InputSanitizer.require(request.getObjective(), "objective");
         if (objective.length() > 500) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Objective must be up to 500 characters");
+            throw new com.revhire.exception.BadRequestException( "Objective must be up to 500 characters");
         }
 
         String education = InputSanitizer.require(request.getEducation(), "education");
@@ -192,15 +192,15 @@ public class ResumeService {
                 continue;
             }
             if (!trimmed.matches(".*[A-Za-z].*")) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Education entry must include a degree");
+                throw new com.revhire.exception.BadRequestException( "Education entry must include a degree");
             }
             Matcher matcher = YEAR_PATTERN.matcher(trimmed);
             if (!matcher.find()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Education entry must include a year");
+                throw new com.revhire.exception.BadRequestException( "Education entry must include a year");
             }
             int year = Integer.parseInt(matcher.group(1));
             if (year < MIN_YEAR || year > currentYear) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Education year must be between 1980 and current year");
+                throw new com.revhire.exception.BadRequestException( "Education year must be between 1980 and current year");
             }
         }
     }
@@ -220,7 +220,7 @@ public class ResumeService {
             if (yearsMatcher.find()) {
                 int years = Integer.parseInt(yearsMatcher.group(1));
                 if (years < 0) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Experience years must be at least 0");
+                    throw new com.revhire.exception.BadRequestException( "Experience years must be at least 0");
                 }
             }
             Matcher matcher = YEAR_PATTERN.matcher(trimmed);
@@ -232,10 +232,10 @@ public class ResumeService {
                 int start = years[0];
                 int end = years[1];
                 if (start > end) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Experience end year must be after start year");
+                    throw new com.revhire.exception.BadRequestException( "Experience end year must be after start year");
                 }
                 if (start < MIN_YEAR || end > currentYear) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Experience years must be between 1980 and current year");
+                    throw new com.revhire.exception.BadRequestException( "Experience years must be between 1980 and current year");
                 }
             }
         }
@@ -250,7 +250,7 @@ public class ResumeService {
                 .filter(part -> !part.isEmpty())
                 .count();
         if (count > 5) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Projects cannot exceed 5 entries");
+            throw new com.revhire.exception.BadRequestException( "Projects cannot exceed 5 entries");
         }
     }
 }

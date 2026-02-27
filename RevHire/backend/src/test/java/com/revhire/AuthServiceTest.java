@@ -24,7 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.server.ResponseStatusException;
+import com.revhire.exception.ApiException;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -149,9 +149,9 @@ class AuthServiceTest {
 
         when(tokenRepository.findByToken("tkn")).thenReturn(Optional.of(token));
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> authService.resetPassword(request));
+        ApiException ex = assertThrows(ApiException.class, () -> authService.resetPassword(request));
 
-        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatus());
         verify(userRepository, never()).save(any(User.class));
     }
 
@@ -164,9 +164,9 @@ class AuthServiceTest {
         actor.setId(1L);
         when(userRepository.findByUsernameIgnoreCase("alice")).thenReturn(Optional.of(actor));
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+        ApiException ex = assertThrows(ApiException.class,
                 () -> authService.updateProfileCompletion(2L, "alice", request));
 
-        assertEquals(HttpStatus.FORBIDDEN, ex.getStatusCode());
+        assertEquals(HttpStatus.FORBIDDEN, ex.getStatus());
     }
 }
