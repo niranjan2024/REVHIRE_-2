@@ -50,7 +50,6 @@ RevHire-Complete Structure/
 +-- Security/
 |   +-- backend/
 |   +-- frontend/
-|   +-- docs/
 +-- validation/
 |   +-- backend/
 |   +-- frontend/
