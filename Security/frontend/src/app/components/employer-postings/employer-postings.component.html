@@ -1,0 +1,45 @@
+<section class="panel">
+  <h1>Manage Job Postings</h1>
+  <form class="search-grid" [formGroup]="form" (ngSubmit)="submit()">
+    <input formControlName="companyName" placeholder="Company name" />
+    <input formControlName="title" placeholder="Title" />
+    <textarea formControlName="description" placeholder="Description"></textarea>
+    <input formControlName="skills" placeholder="Skills (comma separated)" />
+    <input formControlName="maxExperienceYears" type="number" placeholder="Experience years" />
+    <input formControlName="education" placeholder="Education" />
+    <input formControlName="location" placeholder="Location" />
+    <input formControlName="minSalary" type="number" placeholder="Salary min" />
+    <input formControlName="maxSalary" type="number" placeholder="Salary max" />
+    <select formControlName="jobType">
+      <option value="" disabled>Select job type</option>
+      <option value="FULL_TIME">Full-time</option>
+      <option value="PART_TIME">Part-time</option>
+      <option value="CONTRACT">Contract</option>
+      <option value="INTERNSHIP">Internship</option>
+      <option value="REMOTE">Remote</option>
+    </select>
+    <input formControlName="applicationDeadline" type="date" />
+    <input formControlName="openings" type="number" placeholder="Openings" />
+    <button type="submit" class="action-btn">{{ editingJobId ? 'Update Job' : 'Create Job' }}</button>
+    <button type="button" class="outline-btn" *ngIf="editingJobId" (click)="cancelEdit()">Cancel</button>
+  </form>
+
+  <p class="feedback" *ngIf="message">{{ message }}</p>
+
+  <div class="job-list">
+    <div class="job-card" *ngFor="let job of jobs">
+      <div>
+        <h3>{{ job.title }} ({{ job.status }})</h3>
+        <p>{{ job.companyName }} | {{ job.location }} | {{ job.jobType }}</p>
+      </div>
+      <div class="actions-row">
+        <button type="button" class="outline-btn" (click)="edit(job)">Edit</button>
+        <button type="button" class="outline-btn status-red" (click)="changeStatus(job, 'CLOSED')">Close</button>
+        <button type="button" class="outline-btn status-green" (click)="changeStatus(job, 'OPEN')">Reopen</button>
+        <button type="button" class="outline-btn status-yellow" (click)="changeStatus(job, 'FILLED')">Fill</button>
+        <button type="button" class="outline-btn danger-btn" (click)="remove(job.id)">Delete</button>
+      </div>
+    </div>
+    <p class="empty" *ngIf="!jobs.length">No job postings yet.</p>
+  </div>
+</section>

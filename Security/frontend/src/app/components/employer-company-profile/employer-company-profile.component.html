@@ -1,0 +1,25 @@
+<section class="panel form-panel">
+  <h1>Company Profile</h1>
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <label>Company Name</label>
+    <input formControlName="companyName" />
+
+    <label>Industry</label>
+    <input formControlName="industry" />
+
+    <label>Company Size</label>
+    <input formControlName="companySize" />
+
+    <label>Company Description</label>
+    <textarea formControlName="companyDescription"></textarea>
+
+    <label>Website</label>
+    <input formControlName="website" />
+
+    <label>Company Location</label>
+    <input formControlName="companyLocation" />
+
+    <button type="submit" class="action-btn">Save Profile</button>
+    <p class="feedback" *ngIf="message">{{ message }}</p>
+  </form>
+</section>

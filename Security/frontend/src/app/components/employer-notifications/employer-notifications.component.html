@@ -1,0 +1,22 @@
+<section class="panel">
+  <h1>Notifications</h1>
+  <p class="feedback" *ngIf="message">{{ message }}</p>
+  <div class="job-list">
+    <div class="job-card" *ngFor="let item of notifications" [class.unread]="!isRead(item)">
+      <div>
+        <h3>{{ item.message }}</h3>
+        <p>{{ item.createdAt | date: 'medium' }}</p>
+        <button
+          *ngIf="!isRead(item)"
+          type="button"
+          class="action-btn"
+          [disabled]="markingReadIds.has(item.id)"
+          (click)="markAsRead(item)">
+          Mark as Read
+        </button>
+        <span *ngIf="isRead(item)" class="read-chip">Read</span>
+      </div>
+    </div>
+  </div>
+  <p class="empty" *ngIf="!message && !notifications.length">No notifications yet.</p>
+</section>

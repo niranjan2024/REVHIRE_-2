@@ -1,0 +1,91 @@
+<section class="panel">
+  <h1>Applicants</h1>
+
+  <form class="search-grid" [formGroup]="form" (ngSubmit)="filter()">
+    <select formControlName="status">
+      <option value="">All statuses</option>
+      <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+    </select>
+    <input formControlName="search" placeholder="Search by skill or name" />
+    <button type="submit" class="action-btn">Filter</button>
+  </form>
+
+  <p class="feedback" *ngIf="message">{{ message }}</p>
+
+  <div class="job-list">
+    <div class="job-card" *ngFor="let applicant of applicants">
+      <div>
+        <h3>{{ applicant.applicantFullName || applicant.applicantUsername }} ({{ applicant.status }})</h3>
+        <p>{{ applicant.jobTitle }} | {{ applicant.applicantSkills || 'No skills added' }}</p>
+        <p *ngIf="applicant.resumeSummary">Resume: {{ applicant.resumeSummary }}</p>
+        <p *ngIf="applicant.resumeFileName">Resume File: {{ applicant.resumeFileName }}</p>
+        <p *ngIf="applicant.notes">Notes: {{ applicant.notes }}</p>
+
+        <div class="job-actions">
+          <button
+            type="button"
+            class="outline-btn"
+            (click)="viewResume(applicant)">
+            View
+          </button>
+          <button
+            type="button"
+            class="outline-btn status-yellow"
+            [disabled]="applicant.status === 'UNDER_REVIEW'"
+            (click)="setStatus(applicant, 'UNDER_REVIEW')">
+            Under Review
+          </button>
+          <button
+            type="button"
+            class="outline-btn status-green"
+            [disabled]="applicant.status === 'SHORTLISTED'"
+            (click)="setStatus(applicant, 'SHORTLISTED')">
+            Shortlist
+          </button>
+          <button
+            type="button"
+            class="outline-btn status-red"
+            [disabled]="applicant.status === 'REJECTED'"
+            (click)="setStatus(applicant, 'REJECTED')">
+            Reject
+          </button>
+          <button
+            type="button"
+            class="outline-btn status-silver"
+            (click)="beginNotes(applicant)">
+            {{ applicant.notes ? 'Edit Notes' : 'Add Notes' }}
+          </button>
+        </div>
+
+        <div *ngIf="editingNotesId === applicant.applicationId" class="note-editor">
+          <textarea rows="2" [(ngModel)]="noteDraft" placeholder="Add employer notes"></textarea>
+          <div class="job-actions">
+            <button type="button" class="action-btn" (click)="saveNotes(applicant)">Save Notes</button>
+            <button type="button" class="outline-btn" (click)="cancelNotes()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="empty" *ngIf="!message && !applicants.length">No applicants found.</p>
+  </div>
+
+  <div class="resume-modal-backdrop" *ngIf="selectedApplicant">
+    <div class="resume-modal">
+      <h3>Candidate Resume</h3>
+      <p><strong>Name:</strong> {{ selectedApplicant.applicantFullName || selectedApplicant.applicantUsername }}</p>
+      <p><strong>Email:</strong> {{ selectedApplicant.applicantEmail }}</p>
+      <p><strong>Text Resume:</strong> {{ selectedApplicant.resumeSummary || 'No textual resume available' }}</p>
+      <p><strong>Uploaded Resume:</strong> {{ selectedApplicant.resumeFileName || 'No uploaded file available' }}</p>
+      <div class="job-actions">
+        <button
+          type="button"
+          class="outline-btn"
+          [disabled]="!selectedApplicant.resumeFileName"
+          (click)="openUploadedResume(selectedApplicant)">
+          View Resume
+        </button>
+        <button type="button" class="outline-btn status-silver" (click)="closeResumeViewer()">Close</button>
+      </div>
+    </div>
+  </div>
+</section>

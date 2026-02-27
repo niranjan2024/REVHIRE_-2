@@ -1,0 +1,34 @@
+<section class="panel form-panel">
+  <h1>Resume Builder</h1>
+  <form [formGroup]="form" (ngSubmit)="saveTextResume()">
+    <label>Objective</label>
+    <textarea formControlName="objective" placeholder="Example: Full-stack developer seeking opportunities in scalable web applications."></textarea>
+
+    <label>Education (comma separated)</label>
+    <input formControlName="education" placeholder="Example: B.Tech CSE 2024, Diploma in Cloud Computing 2022" />
+
+    <label>Experience (comma separated)</label>
+    <input formControlName="experience" placeholder="Example: Software Intern at ABC (2023-2024), 2 years Java development" />
+
+    <label>Skills</label>
+    <input formControlName="skills" placeholder="Example: Java, Spring Boot, Angular, MySQL, REST APIs" />
+
+    <label>Projects (comma separated)</label>
+    <input formControlName="projects" placeholder="Example: Job Portal System, Inventory Dashboard, E-commerce API" />
+
+    <label>Certifications (comma separated)</label>
+    <input formControlName="certifications" placeholder="Example: AWS Cloud Practitioner, Oracle Java SE 11" />
+
+    <button type="submit" class="action-btn">Save Text Resume</button>
+  </form>
+  <p class="feedback">{{ message }}</p>
+
+  <hr />
+  <h2>Upload Formatted Resume</h2>
+  <input type="file" accept=".pdf,.doc,.docx" (change)="onFileSelected($event)" />
+  <button type="button" class="action-btn" [disabled]="!hasSelectedFile()" (click)="saveResumeFile()">
+    Save Resume File
+  </button>
+  <p class="file-name">{{ selectedFileName }}</p>
+  <p class="feedback">{{ fileMessage }}</p>
+</section>
