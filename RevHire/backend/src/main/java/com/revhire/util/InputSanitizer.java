@@ -18,7 +18,7 @@ public final class InputSanitizer {
         }
         String lower = trimmed.toLowerCase();
         if (lower.contains("<script") || lower.contains("<iframe") || lower.contains("onload=")) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, fieldName + " contains unsafe content");
+            throw new com.revhire.exception.BadRequestException( fieldName + " contains unsafe content");
         }
         return trimmed;
     }
@@ -26,7 +26,7 @@ public final class InputSanitizer {
     public static String require(String value, String fieldName) {
         String sanitized = sanitize(value, fieldName);
         if (sanitized == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, fieldName + " is required");
+            throw new com.revhire.exception.BadRequestException( fieldName + " is required");
         }
         return sanitized;
     }

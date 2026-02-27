@@ -168,13 +168,13 @@ public class EmployerService {
     @Transactional
     public EmployerApplicantResponse updateApplicantStatus(String username, Long applicationId, ApplicationStatus status) {
         if (status == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Status is required");
+            throw new com.revhire.exception.BadRequestException( "Status is required");
         }
         User employer = getEmployer(username);
         JobApplication application = jobApplicationRepository.findById(applicationId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found"));
+                .orElseThrow(() -> new com.revhire.exception.NotFoundException( "Application not found"));
         if (!application.getJob().getEmployer().getId().equals(employer.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can update only your job applications");
+            throw new com.revhire.exception.ForbiddenException( "You can update only your job applications");
         }
         if (application.getStatus() == status) {
             return toApplicantResponse(application, findProfileSkills(application.getJobSeeker()), findResume(application.getJobSeeker()));
@@ -190,12 +190,12 @@ public class EmployerService {
     public EmployerApplicantResponse updateApplicantNotes(String username, Long applicationId, String notes) {
         User employer = getEmployer(username);
         JobApplication application = jobApplicationRepository.findById(applicationId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found"));
+                .orElseThrow(() -> new com.revhire.exception.NotFoundException( "Application not found"));
         if (!application.getJob().getEmployer().getId().equals(employer.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can update only your job applications");
+            throw new com.revhire.exception.ForbiddenException( "You can update only your job applications");
         }
         if (application.getStatus() == ApplicationStatus.WITHDRAWN) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Withdrawn applications cannot be modified");
+            throw new com.revhire.exception.BadRequestException( "Withdrawn applications cannot be modified");
         }
         application.setNotes(InputSanitizer.sanitize(notes, "notes"));
         jobApplicationRepository.save(application);
@@ -206,10 +206,10 @@ public class EmployerService {
     public ResumeFilePayload getApplicantResumeFile(String username, Long applicationId) {
         User employer = getEmployer(username);
         JobApplication application = jobApplicationRepository.findByIdAndEmployerId(applicationId, employer.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found"));
+                .orElseThrow(() -> new com.revhire.exception.NotFoundException( "Application not found"));
         Resume resume = findResume(application.getJobSeeker());
         if (resume == null || resume.getUploadedFileData() == null || resume.getUploadedFileData().length == 0) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Uploaded resume file not found");
+            throw new com.revhire.exception.NotFoundException( "Uploaded resume file not found");
         }
         return new ResumeFilePayload(
                 resume.getUploadedFileName(),
@@ -417,18 +417,18 @@ public class EmployerService {
 
     private JobPosting getEmployerJob(Long jobId, User employer) {
         JobPosting job = jobPostingRepository.findById(jobId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Job not found"));
+                .orElseThrow(() -> new com.revhire.exception.NotFoundException( "Job not found"));
         if (!job.getEmployer().getId().equals(employer.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can access only your own job postings");
+            throw new com.revhire.exception.ForbiddenException( "You can access only your own job postings");
         }
         return job;
     }
 
     private User getEmployer(String username) {
         User user = userRepository.findByUsernameIgnoreCase(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new com.revhire.exception.NotFoundException( "User not found"));
         if (user.getRole() != Role.EMPLOYER) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Employer role required");
+            throw new com.revhire.exception.ForbiddenException( "Employer role required");
         }
         return user;
     }
@@ -443,84 +443,84 @@ public class EmployerService {
 
     private void validateCompanyProfile(EmployerCompanyProfileRequest request) {
         if (request == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Company profile is required");
+            throw new com.revhire.exception.BadRequestException( "Company profile is required");
         }
         String companyName = InputSanitizer.require(request.getCompanyName(), "companyName");
         if (companyName.length() < 3 || companyName.length() > 100) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Company name must be 3-100 characters");
+            throw new com.revhire.exception.BadRequestException( "Company name must be 3-100 characters");
         }
         String industry = InputSanitizer.require(request.getIndustry(), "industry");
         if (industry.length() < 3 || industry.length() > 120) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Industry must be 3-120 characters");
+            throw new com.revhire.exception.BadRequestException( "Industry must be 3-120 characters");
         }
 
         String sizeValue = InputSanitizer.require(request.getCompanySize(), "companySize");
         try {
             int size = Integer.parseInt(sizeValue);
             if (size < 1 || size > 100000) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Company size must be between 1 and 100000");
+                throw new com.revhire.exception.BadRequestException( "Company size must be between 1 and 100000");
             }
         } catch (NumberFormatException ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Company size must be a number");
+            throw new com.revhire.exception.BadRequestException( "Company size must be a number");
         }
 
         String website = InputSanitizer.sanitize(request.getWebsite(), "website");
         if (website != null && !isValidUrl(website)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Website must be a valid URL");
+            throw new com.revhire.exception.BadRequestException( "Website must be a valid URL");
         }
     }
 
     private void validateJobRequest(EmployerJobRequest request) {
         if (request == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Job details are required");
+            throw new com.revhire.exception.BadRequestException( "Job details are required");
         }
         String title = InputSanitizer.require(request.getTitle(), "title");
         if (title.length() < 5 || title.length() > 100) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Title must be 5-100 characters");
+            throw new com.revhire.exception.BadRequestException( "Title must be 5-100 characters");
         }
         String description = InputSanitizer.require(request.getDescription(), "description");
         if (description.length() < 50 || description.length() > 5000) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Description must be 50-5000 characters");
+            throw new com.revhire.exception.BadRequestException( "Description must be 50-5000 characters");
         }
         String skills = InputSanitizer.sanitize(request.getSkills(), "skills");
         if (countTokens(skills) < 3) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "At least 3 skills are required");
+            throw new com.revhire.exception.BadRequestException( "At least 3 skills are required");
         }
         if (request.getMaxExperienceYears() == null || request.getMaxExperienceYears() < 0 || request.getMaxExperienceYears() > 30) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Experience must be between 0 and 30 years");
+            throw new com.revhire.exception.BadRequestException( "Experience must be between 0 and 30 years");
         }
         if (request.getMinSalary() == null || request.getMaxSalary() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Salary range is required");
+            throw new com.revhire.exception.BadRequestException( "Salary range is required");
         }
         if (request.getMinSalary().compareTo(request.getMaxSalary()) > 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Minimum salary cannot exceed maximum salary");
+            throw new com.revhire.exception.BadRequestException( "Minimum salary cannot exceed maximum salary");
         }
         if (request.getMinSalary().signum() < 0 || request.getMaxSalary().signum() < 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Salary must be at least 0");
+            throw new com.revhire.exception.BadRequestException( "Salary must be at least 0");
         }
         String jobType = InputSanitizer.require(request.getJobType(), "jobType").toUpperCase(Locale.ROOT);
         if (!Set.of("FULL_TIME", "PART_TIME", "INTERNSHIP", "CONTRACT", "REMOTE").contains(jobType)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid job type");
+            throw new com.revhire.exception.BadRequestException( "Invalid job type");
         }
         if (request.getApplicationDeadline() != null && !request.getApplicationDeadline().isAfter(LocalDate.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Deadline must be a future date");
+            throw new com.revhire.exception.BadRequestException( "Deadline must be a future date");
         }
         if (request.getOpenings() == null || request.getOpenings() < 1 || request.getOpenings() > 500) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Openings must be between 1 and 500");
+            throw new com.revhire.exception.BadRequestException( "Openings must be between 1 and 500");
         }
     }
 
     private void validateStatusTransition(ApplicationStatus current, ApplicationStatus target) {
         if (current == ApplicationStatus.WITHDRAWN) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Withdrawn applications cannot change status");
+            throw new com.revhire.exception.BadRequestException( "Withdrawn applications cannot change status");
         }
         if (current == ApplicationStatus.APPLIED && target != ApplicationStatus.UNDER_REVIEW) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Status must move from APPLIED to UNDER_REVIEW");
+            throw new com.revhire.exception.BadRequestException( "Status must move from APPLIED to UNDER_REVIEW");
         }
         if (current == ApplicationStatus.UNDER_REVIEW
                 && target != ApplicationStatus.SHORTLISTED
                 && target != ApplicationStatus.REJECTED) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Status must move from UNDER_REVIEW to SHORTLISTED or REJECTED");
+            throw new com.revhire.exception.BadRequestException( "Status must move from UNDER_REVIEW to SHORTLISTED or REJECTED");
         }
     }
 

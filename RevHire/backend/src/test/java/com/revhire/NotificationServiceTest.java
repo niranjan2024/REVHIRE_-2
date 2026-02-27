@@ -13,7 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
+import com.revhire.exception.ApiException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -45,10 +45,10 @@ class NotificationServiceTest {
 
         when(userRepository.findByUsernameIgnoreCase("alice")).thenReturn(Optional.of(user));
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+        ApiException ex = assertThrows(ApiException.class,
                 () -> notificationService.getNotificationsForUserId("alice", 2L));
 
-        assertEquals(HttpStatus.FORBIDDEN, ex.getStatusCode());
+        assertEquals(HttpStatus.FORBIDDEN, ex.getStatus());
     }
 
     @Test

@@ -60,9 +60,9 @@ public class JobSeekerProfileService {
 
     private User getAuthenticatedJobSeeker(String username) {
         User user = userRepository.findByUsernameIgnoreCase(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new com.revhire.exception.NotFoundException( "User not found"));
         if (user.getRole() != Role.JOB_SEEKER) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only job seekers can access this module");
+            throw new com.revhire.exception.ForbiddenException( "Only job seekers can access this module");
         }
         return user;
     }
@@ -95,10 +95,10 @@ public class JobSeekerProfileService {
                 .filter(token -> !token.isBlank())
                 .count();
         if (count < 1) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "At least one skill is required");
+            throw new com.revhire.exception.BadRequestException( "At least one skill is required");
         }
         if (count > 50) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Skills cannot exceed 50 items");
+            throw new com.revhire.exception.BadRequestException( "Skills cannot exceed 50 items");
         }
     }
 }

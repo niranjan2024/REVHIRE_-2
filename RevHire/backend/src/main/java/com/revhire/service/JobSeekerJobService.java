@@ -92,20 +92,20 @@ public class JobSeekerJobService {
     public void applyToJob(String username, Long jobId, ApplyRequest request) {
         User jobSeeker = getJobSeeker(username);
         if (resumeRepository.findByUserId(jobSeeker.getId()).isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Resume required before applying");
+            throw new com.revhire.exception.BadRequestException( "Resume required before applying");
         }
         JobPosting job = jobPostingRepository.findById(jobId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Job not found"));
+                .orElseThrow(() -> new com.revhire.exception.NotFoundException( "Job not found"));
         if (job.getStatus() != JobStatus.OPEN) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Job must be ACTIVE before applying");
+            throw new com.revhire.exception.BadRequestException( "Job must be ACTIVE before applying");
         }
         String coverLetter = request == null ? null : InputSanitizer.sanitize(request.getCoverLetter(), "coverLetter");
         JobApplication existing = jobApplicationRepository.findByJobIdAndJobSeekerId(jobId, jobSeeker.getId());
         if (existing != null && existing.getStatus() != ApplicationStatus.WITHDRAWN) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "You have already applied for this job");
+            throw new com.revhire.exception.ConflictException( "You have already applied for this job");
         }
         if (existing != null) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Withdrawn applications cannot be modified");
+            throw new com.revhire.exception.ConflictException( "Withdrawn applications cannot be modified");
         }
 
         JobApplication application = new JobApplication();
@@ -131,13 +131,13 @@ public class JobSeekerJobService {
         User jobSeeker = getJobSeeker(username);
         JobApplication application = jobApplicationRepository.findByJobIdAndJobSeekerId(jobId, jobSeeker.getId());
         if (application == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found");
+            throw new com.revhire.exception.NotFoundException( "Application not found");
         }
         if (request == null || !Boolean.TRUE.equals(request.getConfirm())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Confirmation required");
+            throw new com.revhire.exception.BadRequestException( "Confirmation required");
         }
         if (!application.getJobSeeker().getId().equals(jobSeeker.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can withdraw only your application");
+            throw new com.revhire.exception.ForbiddenException( "You can withdraw only your application");
         }
         if (application.getStatus() == ApplicationStatus.WITHDRAWN) {
             return;
@@ -152,9 +152,9 @@ public class JobSeekerJobService {
     public void withdrawApplicationById(String username, Long applicationId, WithdrawRequest request) {
         User jobSeeker = getJobSeeker(username);
         JobApplication application = jobApplicationRepository.findByIdAndJobSeekerId(applicationId, jobSeeker.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found"));
+                .orElseThrow(() -> new com.revhire.exception.NotFoundException( "Application not found"));
         if (request == null || !Boolean.TRUE.equals(request.getConfirm())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Confirmation required");
+            throw new com.revhire.exception.BadRequestException( "Confirmation required");
         }
         if (application.getStatus() == ApplicationStatus.WITHDRAWN) {
             return;
@@ -259,9 +259,9 @@ public class JobSeekerJobService {
 
     private User getJobSeeker(String username) {
         User user = userRepository.findByUsernameIgnoreCase(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new com.revhire.exception.NotFoundException( "User not found"));
         if (user.getRole() != Role.JOB_SEEKER) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only job seekers can access this module");
+            throw new com.revhire.exception.ForbiddenException( "Only job seekers can access this module");
         }
         return user;
     }
@@ -328,22 +328,22 @@ public class JobSeekerJobService {
                                        BigDecimal maxSalary,
                                        LocalDate datePosted) {
         if (title != null && title.trim().length() > 100) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Job role must be at most 100 characters");
+            throw new com.revhire.exception.BadRequestException( "Job role must be at most 100 characters");
         }
         if (maxExperienceYears != null && (maxExperienceYears < 0 || maxExperienceYears > 30)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Experience must be between 0 and 30 years");
+            throw new com.revhire.exception.BadRequestException( "Experience must be between 0 and 30 years");
         }
         if (minSalary != null && minSalary.compareTo(BigDecimal.ZERO) < 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Minimum salary must be at least 0");
+            throw new com.revhire.exception.BadRequestException( "Minimum salary must be at least 0");
         }
         if (maxSalary != null && maxSalary.compareTo(BigDecimal.ZERO) < 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Maximum salary must be at least 0");
+            throw new com.revhire.exception.BadRequestException( "Maximum salary must be at least 0");
         }
         if (minSalary != null && maxSalary != null && minSalary.compareTo(maxSalary) > 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Minimum salary cannot exceed maximum salary");
+            throw new com.revhire.exception.BadRequestException( "Minimum salary cannot exceed maximum salary");
         }
         if (datePosted != null && datePosted.isAfter(LocalDate.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Date posted cannot be in the future");
+            throw new com.revhire.exception.BadRequestException( "Date posted cannot be in the future");
         }
     }
 }

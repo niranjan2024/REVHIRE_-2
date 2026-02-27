@@ -59,14 +59,14 @@ public class AuthService {
         String username = InputSanitizer.require(request.getUsername(), "username");
         String email = InputSanitizer.require(request.getEmail(), "email").toLowerCase();
         if (!request.getPassword().equals(request.getConfirmPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password and confirm password do not match");
+            throw new com.revhire.exception.BadRequestException( "Password and confirm password do not match");
         }
 
         if (userRepository.existsByUsernameIgnoreCase(username)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists");
+            throw new com.revhire.exception.ConflictException( "Username already exists");
         }
         if (userRepository.existsByEmailIgnoreCase(email)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists");
+            throw new com.revhire.exception.ConflictException( "Email already exists");
         }
 
         User user = new User();
@@ -120,12 +120,12 @@ public class AuthService {
 
     public ApiResponse changePassword(String username, ChangePasswordRequest request) {
         User user = userRepository.findByUsernameIgnoreCase(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new com.revhire.exception.NotFoundException( "User not found"));
 
         boolean oldMatches = passwordEncoder.matches(request.getOldPassword(), user.getPassword())
                 || LegacyPasswordUtil.sha256Hex(request.getOldPassword()).equalsIgnoreCase(user.getPassword());
         if (!oldMatches) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Old password is incorrect");
+            throw new com.revhire.exception.BadRequestException( "Old password is incorrect");
         }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
@@ -136,7 +136,7 @@ public class AuthService {
     @Transactional
     public ForgotPasswordResponse forgotPassword(ForgotPasswordRequest request) {
         User user = userRepository.findByEmailIgnoreCase(request.getEmail().trim())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Email not found"));
+                .orElseThrow(() -> new com.revhire.exception.NotFoundException( "Email not found"));
 
         tokenRepository.deleteByUser(user);
         PasswordResetToken token = new PasswordResetToken();
@@ -151,10 +151,10 @@ public class AuthService {
     @Transactional
     public ApiResponse resetPassword(ResetPasswordRequest request) {
         PasswordResetToken token = tokenRepository.findByToken(request.getToken())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid token"));
+                .orElseThrow(() -> new com.revhire.exception.BadRequestException( "Invalid token"));
 
         if (token.getExpiryAt().isBefore(LocalDateTime.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token expired");
+            throw new com.revhire.exception.BadRequestException( "Token expired");
         }
 
         User user = token.getUser();
@@ -166,10 +166,10 @@ public class AuthService {
 
     public ApiResponse updateProfileCompletion(Long userId, String currentUsername, ProfileCompletionRequest request) {
         User actor = userRepository.findByUsernameIgnoreCase(currentUsername)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Current user not found"));
+                .orElseThrow(() -> new com.revhire.exception.NotFoundException( "Current user not found"));
 
         if (!actor.getId().equals(userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only update your own profile status");
+            throw new com.revhire.exception.ForbiddenException( "You can only update your own profile status");
         }
 
         actor.setProfileCompleted(Boolean.TRUE.equals(request.getProfileCompleted()));

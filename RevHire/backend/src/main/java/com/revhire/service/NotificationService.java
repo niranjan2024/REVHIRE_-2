@@ -38,7 +38,7 @@ public class NotificationService {
     public List<NotificationResponse> getNotificationsForUserId(String username, Long userId) {
         User user = findUser(username);
         if (!user.getId().equals(userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can access only your notifications");
+            throw new com.revhire.exception.ForbiddenException( "You can access only your notifications");
         }
         return notificationRepository.findByRecipientOrderByCreatedAtDesc(user).stream()
                 .map(this::toResponse)
@@ -54,7 +54,7 @@ public class NotificationService {
     public NotificationResponse markAsRead(String username, Long notificationId) {
         User user = findUser(username);
         Notification notification = notificationRepository.findByIdAndRecipientId(notificationId, user.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Notification not found"));
+                .orElseThrow(() -> new com.revhire.exception.NotFoundException( "Notification not found"));
         if (!notification.isRead()) {
             notification.setRead(true);
             notificationRepository.save(notification);
@@ -108,11 +108,11 @@ public class NotificationService {
 
     private User findUser(String username) {
         return userRepository.findByUsernameIgnoreCase(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new com.revhire.exception.NotFoundException( "User not found"));
     }
 
     public User findUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new com.revhire.exception.NotFoundException( "User not found"));
     }
 }
