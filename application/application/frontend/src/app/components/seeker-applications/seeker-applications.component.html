@@ -1,0 +1,31 @@
+<section class="panel">
+  <h1>My Applications</h1>
+  <p *ngIf="message" class="feedback">{{ message }}</p>
+  <div class="job-list" *ngIf="applications.length; else noApps">
+    <div class="job-card" *ngFor="let application of applications">
+      <div>
+        <h3>{{ application.title }}</h3>
+        <p>
+          {{ application.companyName }} | {{ application.location }} | {{ application.jobType }}
+          | {{ application.minSalary }} - {{ application.maxSalary }}
+        </p>
+        <p>Status: {{ application.status }}</p>
+        <p *ngIf="application.notes">Notes: {{ application.notes }}</p>
+        <p *ngIf="application.resumeSummary">Resume: {{ application.resumeSummary }}</p>
+        <p *ngIf="application.resumeFileName">
+          Resume File: {{ application.resumeFileName }}
+        </p>
+      </div>
+      <button
+        type="button"
+        class="outline-btn"
+        [disabled]="application.status === 'WITHDRAWN'"
+        (click)="withdraw(application.applicationId)">
+        {{ application.status === 'WITHDRAWN' ? 'Withdrawn' : 'Withdraw' }}
+      </button>
+    </div>
+  </div>
+  <ng-template #noApps>
+    <p class="empty">No applications yet.</p>
+  </ng-template>
+</section>

@@ -1,0 +1,28 @@
+<section class="panel">
+  <div class="dashboard-hero">
+    <p class="badge">Employer Dashboard</p>
+    <h1>Welcome, {{ username }}</h1>
+    <p>Track your postings and review candidate activity in one place.</p>
+  </div>
+
+  <h2>Employer Dashboard</h2>
+  <p class="feedback" *ngIf="message">{{ message }}</p>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <h3>Total Jobs</h3>
+      <p>{{ stats.totalJobs }}</p>
+    </div>
+    <div class="stat-card">
+      <h3>Active Jobs</h3>
+      <p>{{ stats.activeJobs }}</p>
+    </div>
+    <div class="stat-card">
+      <h3>Total Applications</h3>
+      <p>{{ stats.totalApplications }}</p>
+    </div>
+    <div class="stat-card">
+      <h3>Pending Reviews</h3>
+      <p>{{ stats.pendingReviews }}</p>
+    </div>
+  </div>
+</section>
